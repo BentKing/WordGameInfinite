@@ -5,6 +5,13 @@ import random
 import os
 import string
 
+user_input = input("5 or 6 letter game?: 5/6 ")
+if user_input == str(5) or str(6):
+    LENGTH_OF_WORD = int(user_input)
+else:
+    print("Bad input.")
+NUMBER_OF_GUESSES=6
+
 #Initialize alphabet list object
 alphabet_string = string.ascii_uppercase
 alphabet_list = list(alphabet_string)
@@ -22,13 +29,19 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 #Create allowed guess list
-f = open("allow.txt", "r")
+if LENGTH_OF_WORD == 5:
+    f = open("allow.txt", "r")
+elif LENGTH_OF_WORD == 6:
+    f = open("6allow.txt", "r")
 allowed_words = f.read().splitlines()
 f.close()
 
 #Generates a random word from guesslist.
-def select_word():
-    f = open("possible.txt", "r")
+def select_word(fiveorsix):
+    if fiveorsix == 5:
+        f = open("possible.txt", "r")
+    elif fiveorsix == 6:
+        f = open("6possible.txt", "r")
     guesslist = f.read().splitlines()
     f.close()
     guessword = guesslist[random.randint(0, len(guesslist))]
@@ -37,14 +50,13 @@ def select_word():
 #Main Game Function
 def play_wordle(true_word, alphabet_dict):
 
-    remaining_guesses = 6
+    remaining_guesses = NUMBER_OF_GUESSES
 
     while remaining_guesses > 0:
         # Create Colorful 'Keyboard'
         row1,row2,row3 = qwerty(alphabet_dict)
 
-        guess_number = (6 - (remaining_guesses -1))
-
+        guess_number = NUMBER_OF_GUESSES - (remaining_guesses - 1)
         #Ensure guess is a valid 5-letter word
         bad_input = 1
         while bad_input == 1:
@@ -113,7 +125,7 @@ def show_guess_board():
 def analyze_guess(true_word, guess_word, alphabet_dict, guess_no):
     letter_pos = 0
     guess_board[guess_no] = ""
-    while letter_pos < 5:
+    while letter_pos < LENGTH_OF_WORD:
         alphabet_dict = guess_helper(true_word, guess_word, letter_pos, alphabet_dict, guess_no)
         letter_pos = letter_pos + 1
     return(alphabet_dict)
@@ -142,6 +154,7 @@ def guess_helper(true_word, guess_word, letter_pos, alphabet_dict, guess_no):
 #Run game function
 streak = 0
 play_again = 1
+
 while(play_again == 1):
     #Initialize alphabet tracking dict, previous guess tracking dict, winner status (you start as a loser) 
     alphabet_dict = {}
@@ -152,7 +165,7 @@ while(play_again == 1):
     # 2 - Used, Letter in wrong position
     # 3 - Used, Letter in correct position
     guess_board = {}
-    result = play_wordle(select_word(), alphabet_dict)
+    result = play_wordle(select_word(LENGTH_OF_WORD), alphabet_dict)
     if result == 1:
         streak = streak + 1
     else:
